@@ -224,3 +224,5 @@ d = np.floor(np.random.rand(12, 2) * 10)
 print(d)
 print(np.vsplit(d, 3)) # 세로로 잘라라 3등분 해라
 print(np.vsplit(d,(3,5))) # 튜플로 경계 지정 3칸, 2칸, 6칸
+
+

@@ -12,11 +12,12 @@
 # # heights = [180 + np.random.normal(0,5) for i in range(100)] # 100개 생성, 틀리다를 증명(귀무가설), 표준편차가 5정도 퍼져있어라
 # # 귀무 가설이 기각이됨, 대립가설이 체택이 됨
 # # 귀무가설이 기각이 되면 안되는 데이터임
-# # heights = [180 + np.random.normal(0,5) for i in range(10000)] # pvalue가 달라짐 0.05이하 일경우 귀무가설이 체택이됨, 대립가설이 기각 
+# # heights = [180 + np.random.normal(0,5) for i in range(10000)] # pvalue가 달라짐 0.05이하 일경우 귀무가설이 체택이됨, 대립가설이 기각
+# # 귀무가설을 참으로 봤을 때 표본에서 실제로 해당되는 통계치가 나올 가능성은 5%미만 이라는 의미
+
 # heights = [175 + np.random.normal(0,5) for i in range(10000)] # 0.05이상 일경우 대립가설이 체택이됨, 귀무가설이 기각됨
 # result = stats.ttest_1samp(heights, 175) # 175 를 기준으로 잡는다. 집단 평균 검정, ttest_1samp => 하나의 데이터 집단의 평균과 비교하고자 하는 관측치를 통해 차이를검정하는 방법
 # print(result) # 여기서 중요한것은 pvalue 이다.
-
 
 # 상관관계 분석
 # 피어슨의 상관관계 분석
@@ -136,21 +137,111 @@ from sklearn import svm
 
 # 다중 선형 회귀
 # 보스턴 주택가격 분석
+# from sklearn.datasets import load_boston
+# from sklearn.linear_model import LinearRegression
+# from sklearn.model_selection import train_test_split
+# boston = load_boston()
+
+# # print(boston) # 양이 엄청 많음, 딕셔너리임
+# # print(boston.DESCR) # 설명서 확인
+# data = boston.data
+# label = boston.target
+# # print(data.shape) # 2차원 (506, 13)
+# # print(label.shape) # 1차원 (506,)
+#
+# train_data, test_data, train_label, test_label = \
+#     train_test_split( data, label, test_size=0.3, random_state=0 ) # 한줄짜리 코딩을 두줄로 나눴기에 역슬래수가 들어감
+# lr = LinearRegression()
+# model = lr.fit(train_data, train_label)
+# print(model.score(train_data, train_label)) # 0.76
+# print(model.score(test_data, test_label)) # 0.67
+
+
+# 보스턴 추가
+# from sklearn.datasets import load_boston
+# from sklearn.linear_model import LinearRegression
+# from sklearn.model_selection import train_test_split
+# import mglearn
+
+# data,label = mglearn.datasets.load_extended_boston() # 보스턴 데이터를 확장시켜논것, 데이터가 두개가나옴, 튜플로 넘어옴
+# # print(data.shape)   # 506, 104 2차원배열
+# # print(label.shape)  # 506 1차원배열
+#
+# # # print(data.count()) # numpyarray 이기에 데이터 프레임으로 변환 해야함
+# # print(pd.DataFrame(data).count())
+#
+# train_data, test_data, train_label, test_label = \
+#     train_test_split( data, label, test_size=0.3, random_state=0 )
+#
+# lr = LinearRegression()
+# model = lr.fit(train_data, train_label) # 모델을 만듬
+# # print(model)
+# print(model.score(train_data, train_label)) # 0.95
+# print(model.score(test_data, test_label)) # 0.64
+# # 정답률이 올라간 대신 과적합이 더 심해짐
+#
+#
+# # 릿지회귀
+# from sklearn.linear_model import Ridge # 릿지회귀, cv-> 교차검증(옵션값이 있는애들은 최적의 옵션 찾기가 힘듬) - 한곳애 때려박고 값을 한곳에 때려박음
+# # ridge = Ridge()                 # 기본값 1.0, 0.88, 0.78
+# # ridge = Ridge(alpha = 0.1)      # 기본값 0.1, alpha -> 0.92, alpha -> 0.79
+# # ridge = Ridge(alpha = 0.01)     # 기본값 0.01, alpha -> 0.94, alpha -> 0.74
+# ridge = Ridge(alpha = 10)         # 기본값 10.0, alpha -> 0.77, alpha -> 0.67
+# model = ridge.fit(train_data, train_label)
+# # 과적합을 줄이는 대신에 정답률이 떨어짐, 기본값 1.0
+# print(model.score(train_data, train_label))
+# print(model.score(test_data, test_label))
+
+
 from sklearn.datasets import load_boston
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
-boston = load_boston()
+import mglearn
+# 멘하탄 임대료
 
-# print(boston) # 양이 엄청 많음, 딕셔너리임
-# print(boston.DESCR) # 설명서 확인
-data = boston.data
-label = boston.target
-# print(data.shape) # 2차원 (506, 13)
-# print(label.shape) # 1차원 (506,)
+url = "https://raw.githubusercontent.com/Codecademy/datasets/master/streeteasy/manhattan.csv"
+manhattan = pd.read_csv(url) # url 사용
+# print(manhattan.head())
+# print(manhattan.shape) # (3539, 18)
+corr = manhattan.corr()
+# print(corr)
+# print(corr["rent"].sort_values(ascending=False)) # "rent"값만을 가져오고, 내림차순 정렬해라
+corr_df = pd.DataFrame(corr["rent"].sort_values(ascending=False))
 
+# plt.figure(figsize=(6, 4))
+# plt.bar(corr_df.index, corr_df["rent"]) # 바차트
+# plt.xticks(rotation=45)
+# plt.show()
+
+data = manhattan[["bedrooms","bathrooms","size_sqft","min_to_subway","floor",
+                  "building_age_yrs","no_fee","has_roofdeck","has_washer_dryer",
+                  "has_doorman","has_elevator","has_dishwasher","has_patio","has_gym"]]
+label = manhattan["rent"] # 렌트값만 뺀것이 라벨
+
+# 나누기
 train_data, test_data, train_label, test_label = \
-    train_test_split( data, label, test_size=0.3, random_state=0 ) # 한줄짜리 코딩을 두줄로 나눴기에 역슬래수가 들어감
+    train_test_split( data, label, test_size=0.3, random_state=0)
 lr = LinearRegression()
 model = lr.fit(train_data, train_label)
+print(model.score(train_data, train_label)) # 0.78
+print(model.score(test_data, test_label)) # 0.77
+
+# 가장 많은것만 분류
+data = manhattan[["bedrooms", "bathrooms", "size_sqft"]]
+label = manhattan["rent"]
+train_data, test_data, train_label, test_label = \
+    train_test_split( data, label, test_size=0.3, random_state=0)
+lr = LinearRegression()
+model = lr.fit(train_data, train_label) 
 print(model.score(train_data, train_label)) # 0.76
-print(model.score(test_data, test_label)) # 0.67
+print(model.score(test_data, test_label)) # 0.75
+
+# predicts = model.predict(train_data)
+# plt.scatter(train_label,predicts)
+# plt.xlabel("price")
+# plt.ylabel("predict", alpha=0.5)
+# plt.show() # 높은 가격대에서 정답률이 낮아짐
+
+# 예측시작, 선형회귀
+my = [[1, 1, 600]]
+print(model.predict(my)) # [3102.81035166]

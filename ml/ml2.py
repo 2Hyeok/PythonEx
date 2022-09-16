@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+from sklearn.datasets import load_iris
 
-# from sklearn.datasets import load_iris
 # iris = load_iris()
 # print(iris.DESCR)
 # data = iris.data
@@ -347,28 +347,71 @@ from sklearn.linear_model import LogisticRegression # 로지스틱회귀 임포�
 
 # 종양분석
 # 서포트 벡터 머신
-from sklearn.datasets import load_breast_cancer
-cancer = load_breast_cancer()
-data = cancer.data
-label = cancer.target
-train_data, test_data, train_label, test_label = \
-    train_test_split(data, label, test_size=0.3, random_state=0)
-    
-from sklearn.svm import SVC
-svc = SVC() # 비선형 분류, 기본 rbf
-model = svc.fit(train_data, train_label) # 0.90, 0.92
+# from sklearn.datasets import load_breast_cancer
+# cancer = load_breast_cancer()
+# data = cancer.data
+# label = cancer.target
+# train_data, test_data, train_label, test_label = \
+#     train_test_split(data, label, test_size=0.3, random_state=0)
+#
+# from sklearn.svm import SVC
+# svc = SVC() # 비선형 분류, 기본 rbf
+# model = svc.fit(train_data, train_label) # 0.90, 0.92
+#
+# # 가공 다시 하기
+# from sklearn.preprocessing import MinMaxScaler
+# mm = MinMaxScaler()
+# mm.fit(data) # fit 후계산을 다시해주어야함
+# train_data = mm.transform(train_data)
+# test_data = mm.transform(test_data)
+# model = svc.fit(train_data, train_label) # 0.98, 0.97
+#
+# svc = SVC(C=100)
+# model = svc.fit(train_data, train_label) # 1.0, 0.97
+#
+# print(model.score(train_data, train_label))
+# print(model.score(test_data, test_label))
 
-# 가공 다시 하기
+
+# DNN , CNN => 딥러닝, 인공신경망
+# K-NN => 다른개념
+iris = load_iris()
+data = iris.data
+label = iris.target
+
+# 정규화 해주자
+# 정답률이 올라감
 from sklearn.preprocessing import MinMaxScaler
 mm = MinMaxScaler()
-mm.fit(data) # fit 후계산을 다시해주어야함
-train_data = mm.transform(train_data)
-test_data = mm.transform(test_data)
-model = svc.fit(train_data, train_label) # 0.98, 0.97
+mm.fit(data)
+data = mm.transform(data)
+train_data, test_data, train_label, test_label = \
+    train_test_split(data, label, test_size=0.3, random_state=0)
 
-svc = SVC(C=100)
-model = svc.fit(train_data, train_label) # 1.0, 0.97
+neighbors = range(1, 11) # 리스트 나열
+train_score = [] # 리스트 생성
+test_score = []
 
-print(model.score(train_data, train_label))
-print(model.score(test_data, test_label))
+from sklearn.neighbors import KNeighborsClassifier
+for n in neighbors:
+    knn = KNeighborsClassifier(n_neighbors=n) # 근접 이웃일 하나만 설정해서 늘려가라
+    model = knn.fit(train_data, train_label)
+    train_score.append(knn.score(train_data, train_label))
+    test_score.append(knn.score(test_data, test_label))
 
+# plt.plot(neighbors, train_score, label="train")
+# plt.plot(neighbors, test_score, label="Test")
+# plt.legend()
+# plt.show()
+
+# 알고리즘 생성
+knn = KNeighborsClassifier(n_neighbors=3) # 3으로 값을 줌
+model = knn.fit(train_data, train_label)
+
+# 예측 시작
+# 정규화 해서 학습을 시켰기에 예측할때도 정규화를 해주어야함
+pre = [[1.2, 2.3, 5.5, 2.7]]
+pre = mm.transform(pre) # pre 라는 값을 정규화해서 
+predict = model.predict(pre) # 예측 해라
+# print(predict) # 종류가 무엇인지 [2]
+print(iris.target_names[predict]) # 이름이 무엇인지 확인
